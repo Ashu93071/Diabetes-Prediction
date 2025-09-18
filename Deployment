@@ -1,0 +1,27 @@
+from flask import Flask,render_template,request
+import joblib
+
+app=Flask(__name__) #creatd an object
+model=joblib.load(open('SaveModel.sav','rb')) #loaded our model using joblib
+
+@app.route('/') #for creating a webpage UI
+def home():
+    return render_template('Webpage.html')
+
+@app.route('/predict',methods=['POST','GET']) #For interacting with our server
+def predict():
+    Pregnancies=float(request.form['Pregnancies'])
+    Glucose=float(request.form['Glucose'])
+    BloodPressure=float(request.form['BloodPressure'])
+    SkinThickness=float(request.form['SkinThickness'])
+    Insulin=float(request.form['Insulin'])
+    BMI=float(request.form['BMI'])
+    DiabetesPedigreeFunction=float(request.form['DiabetesPedigreeFunction'])
+    Age=float(request.form['Age'])
+    result=model.predict([[Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age]])
+    prediction_text = 'Diabetic' if result[0] == 1 else 'Not Diabetic'
+    print(result)
+    return render_template('Webpage.html',result=prediction_text) 
+
+if __name__=='__main__':
+    app.run(debug=True)
